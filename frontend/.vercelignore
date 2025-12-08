@@ -1,6 +1,0 @@
-backend/
-node_modules/
-*.csv
-.env
-.env.local
-
