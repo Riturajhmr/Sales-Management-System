@@ -2,13 +2,13 @@
 
 ## Overview
 
-A full-stack Retail Sales Management System that provides advanced search, filtering, sorting, and pagination capabilities for sales transaction data. The system enables efficient data exploration through a modern web interface with real-time filtering and comprehensive data management features.
+A full-stack Retail Sales Management System that provides advanced search, filtering, sorting, and pagination capabilities for sales transaction data. The system enables efficient data exploration through a modern web interface with real-time filtering and comprehensive data management features. The backend is deployed on Render at https://sales-management-system-ui34.onrender.com with PostgreSQL database integration.
 
 ## Tech Stack
 
 **Backend:**
 - Node.js with Express.js
-- PostgreSQL database
+- PostgreSQL database (deployed on Render)
 - pg (PostgreSQL client)
 
 **Frontend:**
@@ -87,12 +87,24 @@ PORT=5000
 npm run import:csv
 ```
 
-6. Start the backend server:
+7. Start the backend server:
 ```bash
 npm run dev
 ```
 
 The backend will run on `http://localhost:5000`
+
+### Backend Deployment (Render)
+
+The backend is deployed on Render at: **https://sales-management-system-ui34.onrender.com**
+
+**Deployment Configuration:**
+- **Platform**: Render
+- **Root Directory**: `backend`
+- **Build Command**: `npm install`
+- **Start Command**: `npm start`
+- **Database**: PostgreSQL (external URL from Render)
+- **Data Import**: CSV data imported to Render PostgreSQL database using external database URL
 
 ### Frontend Setup
 
@@ -106,7 +118,12 @@ cd frontend
 npm install
 ```
 
-3. Create a `.env` file in the frontend directory (optional, defaults to localhost:5000):
+3. Create a `.env` file in the frontend directory (for production, use the deployed backend URL):
+```env
+VITE_API_URL=https://sales-management-system-ui34.onrender.com
+```
+
+For local development:
 ```env
 VITE_API_URL=http://localhost:5000
 ```
@@ -130,4 +147,3 @@ npm start
 npm run build
 npm run preview
 ```
-

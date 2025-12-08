@@ -14,6 +14,21 @@ The backend follows a layered architecture pattern with clear separation of conc
 - **Framework**: Express.js
 - **Database**: PostgreSQL
 - **Database Client**: pg (node-postgres)
+- **Deployment**: Render (https://sales-management-system-ui34.onrender.com)
+
+### Deployment Architecture
+
+The backend is deployed on Render with the following configuration:
+- **Platform**: Render Web Service
+- **Root Directory**: `backend`
+- **Build Command**: `npm install`
+- **Start Command**: `npm start`
+- **Database**: PostgreSQL service on Render (external database URL)
+- **Data Management**: CSV data imported to Render PostgreSQL database using the external database connection URL
+- **Environment Variables**: 
+  - `DATABASE_URL`: PostgreSQL connection string from Render
+  - `NODE_ENV`: production
+  - `PORT`: Set automatically by Render
 
 ### Folder Structure
 ```
@@ -51,6 +66,7 @@ backend/
 - PostgreSQL connection pool configuration
 - Environment variable management
 - Connection error handling
+- Connects to Render PostgreSQL database using `DATABASE_URL`
 
 #### `src/routes/salesRoutes.js`
 - API endpoint definitions
@@ -76,11 +92,11 @@ backend/
 
 ### Data Flow (Backend)
 
-1. **Request Arrival**: HTTP request arrives at Express server
+1. **Request Arrival**: HTTP request arrives at Express server on Render
 2. **Routing**: `salesRoutes.js` matches URL to controller
 3. **Controller Processing**: `salesController.js` parses query parameters
 4. **Service Layer**: `salesService.js` builds SQL queries with filters
-5. **Database Query**: PostgreSQL executes query via connection pool
+5. **Database Query**: PostgreSQL on Render executes query via connection pool
 6. **Response Formation**: Results formatted and returned to client
 
 ### Database Schema
@@ -153,6 +169,7 @@ frontend/
 - HTTP request construction
 - Query parameter formatting
 - Response handling
+- Connects to deployed backend at https://sales-management-system-ui34.onrender.com
 
 #### Component Hierarchy
 ```
@@ -175,8 +192,8 @@ App
 1. **User Interaction**: User interacts with UI (search, filter, sort, pagination)
 2. **State Update**: `App.jsx` updates query state via `updateQuery`
 3. **Effect Trigger**: `useEffect` detects state change
-4. **API Call**: `salesApi.js` constructs and sends HTTP request
-5. **Backend Processing**: Backend processes request and returns data
+4. **API Call**: `salesApi.js` constructs and sends HTTP request to Render backend
+5. **Backend Processing**: Backend on Render processes request and returns data
 6. **State Update**: Response updates component state
 7. **UI Re-render**: React re-renders components with new data
 
@@ -203,13 +220,15 @@ useEffect Hook Trigger
     ↓
 Axios HTTP Request
     ↓
+Render Backend (https://sales-management-system-ui34.onrender.com)
+    ↓
 Express Route Handler
     ↓
 Controller Parameter Parsing
     ↓
 Service Query Building
     ↓
-PostgreSQL Database Query
+PostgreSQL Database (Render)
     ↓
 Database Response
     ↓
@@ -228,13 +247,54 @@ UI Update (Frontend)
 
 ---
 
+## Module Responsibilities
+
+### Backend Modules
+
+**Configuration Layer:**
+- `src/config/db.js`: Manages PostgreSQL connection pool, connects to Render database
+
+**Routing Layer:**
+- `src/routes/salesRoutes.js`: Defines API endpoints and routes requests to controllers
+
+**Controller Layer:**
+- `src/controllers/salesController.js`: Handles HTTP requests, validates parameters, manages responses
+
+**Service Layer:**
+- `src/services/salesService.js`: Implements business logic, constructs SQL queries, executes database operations
+
+**Utility Layer:**
+- `src/utils/loadSalesData.js`: CSV data loading utilities
+- `scripts/importCsv.js`: CSV import script for database population
+
+### Frontend Modules
+
+**Page Components:**
+- `src/pages/Dashboard.jsx`: Main application page, orchestrates all dashboard components
+
+**Component Layer:**
+- `src/components/dashboard/`: Dashboard-specific components (filters, pagination, sorting, summary)
+- `src/components/inputs/`: Reusable input components (search bar, filter dropdowns)
+- `src/components/layout/`: Layout components (header, sidebar)
+- `src/components/table/`: Data table component
+
+**Service Layer:**
+- `src/services/salesApi.js`: API client, handles all HTTP requests to backend
+
+**Root Components:**
+- `src/App.jsx`: Root component, manages global state and application structure
+- `src/main.jsx`: Application entry point, renders React app
+
+---
+
 ## Key Design Decisions
 
 ### Backend
 1. **Parameterized Queries**: All database queries use parameterized statements to prevent SQL injection
-2. **Connection Pooling**: PostgreSQL connection pool for efficient database access
+2. **Connection Pooling**: PostgreSQL connection pool for efficient database access on Render
 3. **Modular Query Building**: Dynamic WHERE clause construction for flexible filtering
 4. **Separate Count Query**: Efficient pagination with separate count query for total records
+5. **Render Deployment**: Backend deployed on Render for reliable hosting and PostgreSQL integration
 
 ### Frontend
 1. **Component Reusability**: Reusable components like `FilterDropdown` for consistency
@@ -246,13 +306,16 @@ UI Update (Frontend)
 1. **Database Indexing**: Recommended indexes on frequently filtered/sorted columns
 2. **Pagination**: Limits data transfer and improves response times
 3. **Server-Side Filtering**: Reduces data transfer and improves performance
-4. **Connection Pooling**: Efficient database connection management
+4. **Connection Pooling**: Efficient database connection management on Render
+5. **Render Infrastructure**: Leverages Render's scalable infrastructure for backend hosting
 
 ---
 
 ## API Endpoints
 
 ### GET /api/sales
+**Base URL**: https://sales-management-system-ui34.onrender.com
+
 **Query Parameters:**
 - `search` (string): Search term for customer name or phone
 - `regions` (array): Filter by customer regions
@@ -281,6 +344,8 @@ UI Update (Frontend)
 ```
 
 ### GET /api/sales/summary
+**Base URL**: https://sales-management-system-ui34.onrender.com
+
 **Response:**
 ```json
 {
@@ -289,4 +354,3 @@ UI Update (Frontend)
   "totalDiscount": 5000
 }
 ```
-
