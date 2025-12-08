@@ -14,6 +14,7 @@ app.use(express.json());
 app.use("/api/sales", salesRouter);
 
 app.get("/", (req, res) => {
+
   res.send("Sales API running");
 });
 
